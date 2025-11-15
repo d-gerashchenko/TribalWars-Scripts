@@ -78,6 +78,21 @@ function main() {
     var tbody = table.createTBody();
     container.appendChild(table);
     
+    // Create container for summary and close button (will be positioned at bottom)
+    var bottomContainer = document.createElement('div');
+    bottomContainer.style.cssText = 'margin-top:10px;';
+    container.appendChild(bottomContainer);
+    
+    // Add close button at the bottom
+    var closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    closeBtn.style.cssText = 'padding:5px 15px;background:#f44336;color:white;border:none;border-radius:3px;cursor:pointer';
+    closeBtn.onclick = function() {
+        document.body.removeChild(container);
+        window.scavengeWindow = null;
+    };
+    bottomContainer.appendChild(closeBtn);
+    
     // Utility function to parse time string to seconds
     function parseTime(timeStr) {
         if (timeStr === '-' || !timeStr) return 0;
@@ -87,6 +102,8 @@ function main() {
     
     // Calculate optimal ratio considering time limit and troops percentage limit
     function calculateOptimalRatio(timeLimitSec, percentLimit) {
+        console.log('Calculating optimal ratio with time limit:', timeLimitSec, 'percent limit:', percentLimit);
+        
         // Organize available modes with their data
         var availableModes = [[],[],[],[]];
         
@@ -118,67 +135,51 @@ function main() {
             }
         });
         
+        console.log('Available modes:', availableModes);
+        
         var bestCombination = [0,0,0,0];
         var bestTotalPerHour = 0;
         
-        // Recursive function to find best combination
-        function findBestCombination(currentRatios, modeIndex, remainingPercent) {
-            // Base case: all modes processed
-            if (modeIndex >= 4) {
-                if (remainingPercent === 0) {
-                    // Calculate total resources per hour for this combination
-                    var totalPerHour = 0;
-                    for (var i = 0; i < 4; i++) {
-                        if (currentRatios[i] > 0) {
-                            var bestEff = 0;
-                            // Find the exact match for this percentage
-                            for (var j = 0; j < availableModes[i].length; j++) {
-                                if (availableModes[i][j].percentage === currentRatios[i]) {
-                                    bestEff = availableModes[i][j].perHour;
-                                    break;
-                                }
-                            }
-                            totalPerHour += bestEff;
+        // NEW ALGORITHM: Find combinations with similar times
+        for (var mode3 = 0; mode3 < availableModes[3].length; mode3++) {
+            var greatOption = availableModes[3][mode3];
+            
+            for (var mode2 = 0; mode2 < availableModes[2].length; mode2++) {
+                var skilledOption = availableModes[2][mode2];
+                // Ensure times are in order (shorter modes first)
+                if (skilledOption.durationSec > greatOption.durationSec) continue;
+                
+                for (var mode1 = 0; mode1 < availableModes[1].length; mode1++) {
+                    var modestOption = availableModes[1][mode1];
+                    if (modestOption.durationSec > skilledOption.durationSec) continue;
+                    
+                    for (var mode0 = 0; mode0 < availableModes[0].length; mode0++) {
+                        var lazyOption = availableModes[0][mode0];
+                        if (lazyOption.durationSec > modestOption.durationSec) continue;
+                        
+                        // Calculate total percentage
+                        var totalPercentage = lazyOption.percentage + modestOption.percentage + skilledOption.percentage + greatOption.percentage;
+                        
+                        // Check if total percentage is within limit
+                        if (totalPercentage > percentLimit) continue;
+                        
+                        // Calculate total resources per hour
+                        var totalResourcesPerHour = lazyOption.perHour + modestOption.perHour + skilledOption.perHour + greatOption.perHour;
+                        
+                        // Update best combination if this one is better
+                        if (totalResourcesPerHour > bestTotalPerHour) {
+                            bestTotalPerHour = totalResourcesPerHour;
+                            bestCombination = [lazyOption.percentage, modestOption.percentage, skilledOption.percentage, greatOption.percentage];
+                            console.log('New best combination:', bestCombination, 'with RPH:', totalResourcesPerHour);
                         }
                     }
-                    // Update best combination if this one is better
-                    if (totalPerHour > bestTotalPerHour) {
-                        bestTotalPerHour = totalPerHour;
-                        bestCombination = currentRatios.slice();
-                    }
-                }
-                return;
-            }
-            
-            // Calculate maximum allowed percentage for this mode
-            var maxAllowedPercent = Math.min(percentLimit, remainingPercent);
-            
-            // Try all possible percentages for current mode
-            for (var percent = 0; percent <= maxAllowedPercent; percent++) {
-                var hasValidOption = false;
-                // Check if this percentage exists in available data
-                for (var i = 0; i < availableModes[modeIndex].length; i++) {
-                    if (availableModes[modeIndex][i].percentage === percent) {
-                        hasValidOption = true;
-                        break;
-                    }
-                }
-                
-                // Only proceed if percentage is valid or zero
-                if (hasValidOption || percent === 0) {
-                    currentRatios[modeIndex] = percent;
-                    // Recursively process next mode with remaining percentage
-                    findBestCombination(currentRatios, modeIndex + 1, remainingPercent - percent);
-                    currentRatios[modeIndex] = 0; // backtrack
                 }
             }
         }
         
-        // Start the search with empty ratios and 100% to distribute
-        findBestCombination([0,0,0,0], 0, 100);
-        
         // Fallback: if no combination found, use single best mode
         if (bestTotalPerHour === 0) {
+            console.log('No combination found, using single best mode');
             for (var mode = 3; mode >= 0; mode--) {
                 if (availableModes[mode].length > 0) {
                     var bestOption = availableModes[mode][0];
@@ -190,18 +191,32 @@ function main() {
                     }
                     bestCombination = [0,0,0,0];
                     bestCombination[mode] = Math.min(percentLimit, bestOption.percentage);
+                    console.log('Using single mode:', bestCombination);
                     break;
                 }
             }
         }
         
+        console.log('Final optimal ratio:', bestCombination);
         return bestCombination[0] + '/' + bestCombination[1] + '/' + bestCombination[2] + '/' + bestCombination[3];
     }
     
     // Main function to calculate and display results
     function calculateResults(percentLimit, timeLimitStr) {
+        console.log('Calculating results with percent limit:', percentLimit, 'time limit:', timeLimitStr);
+        
         // Clear previous results
         tbody.innerHTML = '';
+        
+        // Remove existing summary and info
+        var existingSummary = bottomContainer.querySelector('#summary');
+        if (existingSummary) {
+            bottomContainer.removeChild(existingSummary);
+        }
+        var existingInfo = bottomContainer.querySelector('#info');
+        if (existingInfo) {
+            bottomContainer.removeChild(existingInfo);
+        }
         
         var timeLimitSec = parseTime(timeLimitStr);
         var optimalRatio = calculateOptimalRatio(timeLimitSec, percentLimit);
@@ -295,23 +310,12 @@ function main() {
             }
         });
         
-        // Create or update summary section
-        var existingSummary = container.querySelector('#summary');
-        if (existingSummary) {
-            container.removeChild(existingSummary);
-        }
-        
+        // Create summary section
         var summary = document.createElement('div');
         summary.id = 'summary';
         summary.style.cssText = 'margin-top:10px;padding:5px;background:#f9f9f9';
         summary.innerHTML = '<div style="color:purple;font-weight:bold">Optimal Ratio: ' + optimalRatio + ' (Troops Limit: ' + percentLimit + '%)</div>';
-        container.appendChild(summary);
-        
-        // Create or update info section
-        var existingInfo = container.querySelector('#info');
-        if (existingInfo) {
-            container.removeChild(existingInfo);
-        }
+        bottomContainer.insertBefore(summary, closeBtn);
         
         // Calculate max percentages for info display
         var maxPercentages = [0,0,0,0];
@@ -336,7 +340,7 @@ function main() {
         info.id = 'info';
         info.style.cssText = 'margin-top:10px;padding:5px;background:#fff3cd;border:1px solid #ffeaa7';
         info.innerHTML = '<strong>Max percentages per mode (up to ' + maxPercentageInData + '%):</strong><br>Lazy: ' + maxPercentages[0] + '% | Modest: ' + maxPercentages[1] + '% | Skilled: ' + maxPercentages[2] + '% | Great: ' + maxPercentages[3] + '%';
-        container.appendChild(info);
+        bottomContainer.insertBefore(info, closeBtn);
     }
     
     // Update button event handler
@@ -353,16 +357,6 @@ function main() {
             calculateResults(percent, timeLimit);
         }
     };
-    
-    // Add close button
-    var closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Close';
-    closeBtn.style.cssText = 'margin-top:10px;padding:5px 15px;background:#f44336;color:white;border:none;border-radius:3px;cursor:pointer';
-    closeBtn.onclick = function() {
-        document.body.removeChild(container);
-        window.scavengeWindow = null;
-    };
-    container.appendChild(closeBtn);
     
     // Add container to page and calculate initial results
     document.body.appendChild(container);
