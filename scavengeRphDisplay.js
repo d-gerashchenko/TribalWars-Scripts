@@ -1,4 +1,4 @@
-// Tribal Wars Scavenge Efficiency Calculator - FIXED VERSION
+// Tribal Wars Scavenge Efficiency Calculator - Game Styled
 function main() {
     var data = localStorage.getItem('scavengeData');
     if (!data) {
@@ -15,48 +15,54 @@ function main() {
         } catch(e) {}
     }
     
-    // Create main container
+    // Create main container with game styling
     var container = document.createElement('div');
-    container.style.cssText = 'position:fixed;top:10%;left:5%;right:5%;bottom:5%;background:white;border:2px solid #000;padding:10px;z-index:9999;overflow:auto;font-family:Arial';
+    container.style.cssText = 'position:fixed;top:10%;left:5%;right:5%;bottom:5%;background:#e3d5b3;border:1px solid #7d510f;padding:10px;z-index:9999;overflow:auto;font-family:Verdana,Arial;box-shadow:1px 2px 3px 1px rgba(0,0,0,0.2);';
     window.scavengeWindow = container;
     
     // Create header
     var header = document.createElement('h3');
     header.textContent = 'Scavenge Results - Copy Ratios for Auto Farmer';
     header.style.textAlign = 'center';
+    header.style.color = '#7d510f';
+    header.style.margin = '10px 0';
     container.appendChild(header);
     
     // Create input controls
     var inputDiv = document.createElement('div');
-    inputDiv.style.cssText = 'margin:10px 0;padding:10px;background:#f5f5f5;border:1px solid #ddd';
+    inputDiv.style.cssText = 'margin:10px 0;padding:10px;background:#f5f5f5;border:1px solid #ddd;border-radius:5px;';
     
     var percentLabel = document.createElement('label');
     percentLabel.textContent = 'Troops % limit: ';
     percentLabel.style.fontWeight = 'bold';
     percentLabel.style.marginRight = '10px';
+    percentLabel.style.color = '#7d510f';
     
     var percentInput = document.createElement('input');
     percentInput.type = 'number';
     percentInput.min = '1';
     percentInput.max = '100';
     percentInput.value = '100';
-    percentInput.style.cssText = 'padding:5px;width:60px;border:1px solid #ccc;border-radius:3px';
+    percentInput.style.cssText = 'padding:3px;width:60px;border:1px solid #7d510f;border-radius:3px;background:#fff;';
     
     var timeLabel = document.createElement('label');
     timeLabel.textContent = 'Time limit (HH:MM:SS): ';
     timeLabel.style.fontWeight = 'bold';
     timeLabel.style.marginLeft = '20px';
     timeLabel.style.marginRight = '10px';
+    timeLabel.style.color = '#7d510f';
     
     var timeInput = document.createElement('input');
     timeInput.type = 'text';
     timeInput.value = '02:00:00';
     timeInput.placeholder = 'HH:MM:SS';
-    timeInput.style.cssText = 'padding:5px;width:80px;border:1px solid #ccc;border-radius:3px';
+    timeInput.style.cssText = 'padding:3px;width:80px;border:1px solid #7d510f;border-radius:3px;background:#fff;';
     
+    // Use game button style for Update button
     var updateBtn = document.createElement('button');
     updateBtn.textContent = 'Update';
-    updateBtn.style.cssText = 'margin-left:10px;padding:5px 10px;background:#4CAF50;color:white;border:none;border-radius:3px;cursor:pointer';
+    updateBtn.className = 'btn btn-default';
+    updateBtn.style.cssText = 'margin-left:10px;';
     
     inputDiv.appendChild(percentLabel);
     inputDiv.appendChild(percentInput);
@@ -65,10 +71,10 @@ function main() {
     inputDiv.appendChild(updateBtn);
     container.appendChild(inputDiv);
     
-    // Create table
+    // Create table with game styling
     var table = document.createElement('table');
-    table.style.cssText = 'width:100%;border-collapse:collapse;font-size:11px';
-    table.innerHTML = '<thead><tr style="background:#eee"><th>%</th><th>SP</th><th>L/h</th><th>LT</th><th>L Res</th><th>M/h</th><th>MT</th><th>M Res</th><th>S/h</th><th>ST</th><th>S Res</th><th>G/h</th><th>GT</th><th>G Res</th><th>Fixed Ratio</th></tr></thead>';
+    table.style.cssText = 'width:100%;border-collapse:collapse;font-size:11px;background:#fff;border:1px solid #7d510f;';
+    table.innerHTML = '<thead><tr style="background:linear-gradient(to bottom,#947a62 0%,#7b5c3d 22%,#6c4824 30%,#6c4824 100%);color:#fff;font-weight:bold;"><th style="padding:5px;border:1px solid #7d510f;">%</th><th style="padding:5px;border:1px solid #7d510f;">SP</th><th style="padding:5px;border:1px solid #7d510f;">L/h</th><th style="padding:5px;border:1px solid #7d510f;">LT</th><th style="padding:5px;border:1px solid #7d510f;">L Res</th><th style="padding:5px;border:1px solid #7d510f;">M/h</th><th style="padding:5px;border:1px solid #7d510f;">MT</th><th style="padding:5px;border:1px solid #7d510f;">M Res</th><th style="padding:5px;border:1px solid #7d510f;">S/h</th><th style="padding:5px;border:1px solid #7d510f;">ST</th><th style="padding:5px;border:1px solid #7d510f;">S Res</th><th style="padding:5px;border:1px solid #7d510f;">G/h</th><th style="padding:5px;border:1px solid #7d510f;">GT</th><th style="padding:5px;border:1px solid #7d510f;">G Res</th><th style="padding:5px;border:1px solid #7d510f;">Fixed Ratio</th></tr></thead>';
     var tbody = table.createTBody();
     container.appendChild(table);
     
@@ -77,10 +83,11 @@ function main() {
     bottomContainer.style.cssText = 'margin-top:20px;';
     container.appendChild(bottomContainer);
     
-    // Add close button FIRST (will stay at bottom)
+    // Use game button style for Close button
     var closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close';
-    closeBtn.style.cssText = 'padding:8px 20px;background:#f44336;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px;';
+    closeBtn.className = 'btn btn-default';
+    closeBtn.style.cssText = 'margin-right:10px;';
     closeBtn.onclick = function() {
         document.body.removeChild(container);
         window.scavengeWindow = null;
@@ -93,7 +100,6 @@ function main() {
         return parts[0] * 3600 + parts[1] * 60 + parts[2];
     }
     
-    // FIXED: Proper optimal ratio calculation
     function calculateOptimalRatio(timeLimitSec, percentLimit) {
         var availableModes = [[],[],[],[]];
         
@@ -126,8 +132,7 @@ function main() {
         var bestCombination = [0,0,0,0];
         var bestTotalPerHour = 0;
         
-        // FIXED: Search for combinations with similar completion times
-        // Try each mode as the "base" time and find closest matches
+        // Search for combinations with similar completion times
         for (var baseMode = 3; baseMode >= 0; baseMode--) {
             for (var baseIdx = 0; baseIdx < availableModes[baseMode].length; baseIdx++) {
                 var baseOption = availableModes[baseMode][baseIdx];
@@ -256,14 +261,22 @@ function main() {
             var percentage = result.p || Math.round(result.s / results[results.length-1].s * 100);
             var row = tbody.insertRow();
             
-            if (percentage === 100) row.style.borderBottom = '2px solid #ff0000';
-            else if (percentage > 100) row.style.background = '#fff9e6';
+            // Style table rows
+            row.style.backgroundColor = index % 2 === 0 ? '#fff' : '#f9f9f9';
+            
+            if (percentage === 100) {
+                row.style.borderBottom = '2px solid #7d510f';
+                row.style.fontWeight = 'bold';
+            } else if (percentage > 100) {
+                row.style.background = '#fff9e6';
+            }
             
             [percentage + '%', result.s].forEach(function(value) {
                 var cell = row.insertCell();
                 cell.textContent = value;
-                cell.style.padding = '2px';
+                cell.style.padding = '5px';
                 cell.style.textAlign = 'center';
+                cell.style.border = '1px solid #ddd';
             });
             
             var totalEff = 0;
@@ -280,17 +293,15 @@ function main() {
                     perHour = Math.round(totalResources / durationSec * 3600 * 100) / 100;
                 }
                 
+                [resCell, timeCell, totalResCell].forEach(function(cell) {
+                    cell.style.padding = '5px';
+                    cell.style.textAlign = 'center';
+                    cell.style.border = '1px solid #ddd';
+                });
+                
                 resCell.textContent = perHour || 0;
-                resCell.style.padding = '2px';
-                resCell.style.textAlign = 'center';
-                
                 timeCell.textContent = duration;
-                timeCell.style.padding = '2px';
-                timeCell.style.textAlign = 'center';
-                
                 totalResCell.textContent = totalResources || 0;
-                totalResCell.style.padding = '2px';
-                totalResCell.style.textAlign = 'center';
                 
                 var durationSec = parseTime(duration);
                 if (durationSec <= timeLimitSec && durationSec > 0 && perHour > 0) {
@@ -308,13 +319,15 @@ function main() {
             
             var ratioCell = row.insertCell();
             ratioCell.textContent = optimalRatio;
-            ratioCell.style.padding = '2px';
+            ratioCell.style.padding = '5px';
             ratioCell.style.textAlign = 'center';
+            ratioCell.style.border = '1px solid #ddd';
+            ratioCell.style.fontWeight = 'bold';
             
             if (index === 0) {
                 ratioCell.style.background = '#e3f2fd';
-                ratioCell.style.fontWeight = 'bold';
                 ratioCell.style.cursor = 'pointer';
+                ratioCell.title = 'Click to copy ratio';
                 ratioCell.onclick = function() {
                     navigator.clipboard.writeText(optimalRatio).then(function() {
                         alert('Copied: ' + optimalRatio);
@@ -328,14 +341,14 @@ function main() {
         // Add summary and info ABOVE close button
         var summary = document.createElement('div');
         summary.id = 'summary';
-        summary.style.cssText = 'margin-bottom:10px;padding:10px;background:#f9f9f9;border-radius:4px;';
-        summary.innerHTML = '<div style="color:purple;font-weight:bold;font-size:16px;">Optimal Ratio: ' + optimalRatio + '</div><div style="color:#666;margin-top:5px;">Troops Limit: ' + percentLimit + '% | Time Limit: ' + timeLimitStr + '</div>';
+        summary.style.cssText = 'margin-bottom:10px;padding:10px;background:#f9f9f9;border-radius:5px;border:1px solid #7d510f;';
+        summary.innerHTML = '<div style="color:#7d510f;font-weight:bold;font-size:14px;">Optimal Ratio: ' + optimalRatio + '</div><div style="color:#666;margin-top:5px;">Troops Limit: ' + percentLimit + '% | Time Limit: ' + timeLimitStr + '</div>';
         bottomContainer.insertBefore(summary, closeBtn);
         
         var info = document.createElement('div');
         info.id = 'info';
-        info.style.cssText = 'margin-bottom:10px;padding:10px;background:#fff3cd;border:1px solid #ffeaa7;border-radius:4px;';
-        info.innerHTML = '<strong>Max percentages per mode within time limit:</strong><br>Lazy: ' + 
+        info.style.cssText = 'margin-bottom:10px;padding:10px;background:#fff3cd;border:1px solid #ffeaa7;border-radius:5px;';
+        info.innerHTML = '<strong style="color:#7d510f;">Max percentages per mode within time limit:</strong><br>Lazy: ' + 
             (results.reduce((max, r) => Math.max(max, r.res[0].d !== '-' && parseTime(r.res[0].d) <= timeLimitSec ? (r.p || Math.round(r.s/results[results.length-1].s*100)) : 0), 0)) + '% | ' +
             'Modest: ' + (results.reduce((max, r) => Math.max(max, r.res[1].d !== '-' && parseTime(r.res[1].d) <= timeLimitSec ? (r.p || Math.round(r.s/results[results.length-1].s*100)) : 0), 0)) + '% | ' +
             'Skilled: ' + (results.reduce((max, r) => Math.max(max, r.res[2].d !== '-' && parseTime(r.res[2].d) <= timeLimitSec ? (r.p || Math.round(r.s/results[results.length-1].s*100)) : 0), 0)) + '% | ' +
